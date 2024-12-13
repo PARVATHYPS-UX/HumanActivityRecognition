@@ -1,71 +1,66 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, accuracy_score
 
+# Load Dataset
+file_path = "C:/Users/parva/OneDrive/Desktop/HUMANACTIVITYPRO/Human_Activity_Recognition_Using_Smartphones_Data(1).csv" 
+data = pd.read_csv(file_path)
 
+# Inspect Data
+print("Initial data shape:", data.shape)
+print(data.head())
 
-# Load dataset
-file_path = "C:/Users/parva/OneDrive/Desktop/HUMANACTIVITYPRO/Human_Activity_Recognition_Using_Smartphones_Data.xlsx"
-data = pd.read_excel(file_path)  # Use read_excel for .xlsx files
-# Display dataset information
-print("Dataset Overview:")
-print(data.info())  # Shows the structure and column details
-print("\nFirst 5 Rows of the Dataset:")
-print(data.head())  # Displays the first few rows of the dataset
-# Remove duplicates if any
-initial_rows = data.shape[0]
+# Remove Duplicates
 data = data.drop_duplicates()
-print(f"\nRemoved {initial_rows - data.shape[0]} duplicate rows.")
-# Handle missing data
-print("\nChecking for Missing Values Per Column:")
-print(data.isnull().sum())  # Check for missing values
-# Fill missing values with column mean
-data = data.fillna(data.mean())
-print("Missing values have been handled.\n")
-# Plot the distribution of activities
+print("Shape after removing duplicates:", data.shape)
+
+# Handle Missing Values
+if data.isnull().sum().any():
+    print("Missing values detected. Handling missing values...")
+    data = data.fillna(data.mean(numeric_only=True))  
+    data = data.fillna(data.mode().iloc[0])          
+else:
+    print("No missing values detected.")
+    # Plot Distribution of Activity
 plt.figure(figsize=(10, 6))
-sns.countplot(x='Activity', data=data, palette='viridis')
-plt.title("Distribution of Activities")
+data['Activity'].value_counts().plot(kind='bar', color='skyblue')
+plt.title("Distribution of Activity")
 plt.xlabel("Activity")
-plt.ylabel("Count")
-plt.xticks(rotation=45)
+plt.ylabel("Frequency")
 plt.show()
-# Encode the categorical 'Activity' column
+
+# Encode Categorical Data
 label_encoder = LabelEncoder()
 data['Activity'] = label_encoder.fit_transform(data['Activity'])
-print("Encoded Activity Labels:")
-print(data['Activity'].unique())  # Display unique encoded labels
-# Split features (X) and target labels (y)
-X = data.drop('Activity', axis=1)  # Drop 'Activity' column as features
-y = data['Activity']  # 'Activity' column is the target
-# Split into training and testing datasets
+
+# Split Dataset
+X = data.drop('Activity', axis=1)  
+y = data['Activity']  
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-print(f"\nTraining data shape: {X_train.shape}")
-print(f"Testing data shape: {X_test.shape}")
-# Scale the features
+
+# Scaling Data
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
-print("Data scaling complete.")
-# Train a Random Forest Classifier
+ 
+# Train Model
 model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
-# Make predictions
+
+# Test Model
 y_pred = model.predict(X_test)
-# Evaluate the model
-print("Model Accuracy:", accuracy_score(y_test, y_pred))
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+# Save 
 import joblib
 
 # Save the trained model
 joblib.dump(model, "trained_model.pkl")
 
-# Later, load the model for reuse
+#  load the model for reuse
 loaded_model = joblib.load("trained_model.pkl")
+

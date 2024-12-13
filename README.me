@@ -1,0 +1,23 @@
+## Dataset
+The dataset used is available from [UCI Machine Learning Repository](https://archive.ics.uci.edu/).
+
+### How to Load the Dataset
+The dataset is in `.xlsx` format. Use the following code to load it into the project:
+
+```python
+import pandas as pd
+
+
+# Filepath to the dataset
+file_path = "C:/Users/parva/OneDrive/Desktop/HUMANACTIVITYPRO/Human_Activity_Recognition_Using_Smartphones_Data.xlsx"
+
+# Load the dataset
+data = pd.read_excel(file_path)
+
+# Display basic dataset details
+print(data.info())
+print(data.head())
+## How to Run
+
+1. **Clone the Repository**:
+
